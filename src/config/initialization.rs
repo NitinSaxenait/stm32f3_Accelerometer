@@ -29,7 +29,7 @@ pub type Lsm303dlhc = lsm303dlhc::Lsm303dlhc<I2c<I2C1, (PB6<AF4>, PB7<AF4>)>>;
 /// Lsm303dlhc -> a package to access the accelerometer sensor to get the readings.
 /// Delay -> a time delay to pause the running program for few seconds.
 /// ITM -> a tool to print the sensor data on the itm console.
-pub fn initialization() -> (Lsm303dlhc, Delay, ITM) {
+pub fn initialization() -> (Lsm303dlhc, Delay, ITM, MonoTimer) {
     let cp = cortex_m::Peripherals::take().unwrap();
     let dp = stm32::Peripherals::take().unwrap();
 
@@ -53,6 +53,8 @@ pub fn initialization() -> (Lsm303dlhc, Delay, ITM) {
     let lsm303dlhc = Lsm303dlhc::new(i2c).expect("Cannot setup i2c in lsm303 package");
 
     let delay = Delay::new(cp.SYST, clocks);
+    /// A clock source that only increments and never jumps - MonoTimer
+    let mono_timer = MonoTimer::new(cp.DWT, clocks);
 
-    (lsm303dlhc, delay, cp.ITM)
+    (lsm303dlhc, delay, cp.ITM, mono_timer)
 }
